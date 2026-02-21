@@ -31,7 +31,7 @@ con.execute('''
 create table model(
    id                text,
    name              text,
-   provider          text    not null references provider,
+   provider_id       text    not null references provider,
    family            text,
    open_weights      integer not null check (open_weights in (0, 1)), --  Are trained weights are publicly available?
    status            text    check (status in ('alpha', 'beta', 'deprecated')),
@@ -62,8 +62,48 @@ create table model(
    --
    interleaved text              null, -- TODO
    --
-   primary key (id, provider) -- The same model can have different prices in different regions (for example alibaba vs alibaba-cn)
+   primary key (id, provider_id) -- The same model can have different prices in different regions (for example alibaba vs alibaba-cn)
 )''')
+
+con.execute('''
+create view model_v as
+select
+   m.id,
+   m.name,
+   p.name     provider_name,
+   m.family,
+   m.open_weights,
+   m.status,
+   m.rel_dt,
+   m.upd_dt,
+   m.cutoff_dt,
+   m.attachment,
+   m.reasoning,
+   m.struct_out,
+   m.tool_call,
+   m.temperature,
+   m.lim_ctx,
+   m.lim_in,
+   m.lim_out,
+   m.mod_in,
+   m.mod_out,
+   m.cost_input,
+   m.cost_output,
+   m.cost_cache_read,
+   m.cost_cache_write,
+   m.cost_audio_in,
+   m.cost_audio_out,
+   m.cost_reasoning,
+   m.interleaved,
+   m.provider_id,
+   p.npm,
+   p.env,
+   p.api,
+   p.doc
+from
+   model    m                          join
+   provider p on m.provider_id = p.id
+''')
 # }}}
 
 with db.bulk_load(con) as cur: # {{{
@@ -107,7 +147,7 @@ with db.bulk_load(con) as cur: # {{{
 
 
         cur.execute('''insert into model(
-                    id, name, provider, family,
+                    id, name, provider_id, family,
                     open_weights,
                     status,
                     rel_dt, upd_dt, cutoff_dt,
