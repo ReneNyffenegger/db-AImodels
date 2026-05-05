@@ -69,3 +69,7 @@ con = open_AImodels_db()
 - `cost_audio_out` (real)
 - `cost_reasoning` (real)
 - `interleaved` (text)
+
+## Dependencies
+
+The code depends on [RenesSQLiteHelper](https://pypi.org/project/RenesSQLiteHelper).
